@@ -457,7 +457,8 @@ declare_args() {
   v8_enable_experimental_tsa_builtins = false
 
   # Use the encoding of undefined in double values.
-  v8_enable_undefined_double = false
+  # Only enabled for fuzzing in V8 Fuzzilli builds
+  v8_enable_undefined_double = v8_fuzzilli
 
   v8_dcheck_always_on = dcheck_always_on
 
@@ -601,7 +602,7 @@ if (v8_enable_external_code_space == "") {
       v8_enable_pointer_compression &&
       v8_enable_pointer_compression_shared_cage &&
       (v8_current_cpu == "x64" || v8_current_cpu == "arm64" ||
-       v8_current_cpu == "loong64")
+       v8_current_cpu == "loong64" || v8_current_cpu == "riscv64")
 }
 if (v8_enable_sparkplug == "") {
   v8_enable_sparkplug = !v8_jitless

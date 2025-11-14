@@ -718,11 +718,7 @@ DEFINE_BOOL(maglev_reuse_stack_slots, true,
             "reuse stack slots in the maglev optimizing compiler")
 DEFINE_BOOL(maglev_untagged_phis, true,
             "enable phi untagging in the maglev optimizing compiler")
-// The maglev_hoist_osr_value_phi_untagging flag can hoist untaggings over
-// ThrowReferenceErrorIfHole and thus causes a map check on the hole.
-// As such it is incompatible with unmap_holes.
-DEFINE_NEG_IMPLICATION(unmap_holes, maglev_hoist_osr_value_phi_untagging)
-DEFINE_BOOL(maglev_hoist_osr_value_phi_untagging, false,
+DEFINE_BOOL(maglev_hoist_osr_value_phi_untagging, true,
             "enable phi untagging to hoist untagging of osr values")
 DEFINE_EXPERIMENTAL_FEATURE(
     maglev_speculative_hoist_phi_untagging,
@@ -2367,10 +2363,6 @@ DEFINE_BOOL(trace_mutator_utilization, false,
             "print mutator utilization, allocation speed, gc speed")
 DEFINE_BOOL(incremental_marking, true, "use incremental marking")
 DEFINE_BOOL(incremental_marking_task, true, "use tasks for incremental marking")
-DEFINE_BOOL(incremental_marking_start_user_visible, true,
-            "Starts incremental marking with kUserVisible priority.")
-DEFINE_BOOL(incremental_marking_always_user_visible, true,
-            "Always posts incremental marking with kUserVisible priority.")
 DEFINE_INT(incremental_marking_soft_trigger, 0,
            "threshold for starting incremental marking via a task in percent "
            "of available space: limit - size")
@@ -3859,11 +3851,10 @@ DEFINE_BOOL_READONLY(shared_heap, false,
                      "Enables a shared heap between isolates.")
 #endif
 
-DEFINE_EXPERIMENTAL_FEATURE(
-    proto_assign_seq_opt,
-    "Enable optimizing a sequence of `Class_X.prototype.[key] = ...`"
-    "by replacing it by a runtime code somewhat equivalent to "
-    "`Object.assign(Class_X.prototype, [boilerplate_obj])`")
+DEFINE_BOOL(proto_assign_seq_opt, true,
+            "Enable optimizing a sequence of `Class_X.prototype.[key] = ...`"
+            "by replacing it by a runtime code somewhat equivalent to "
+            "`Object.assign(Class_X.prototype, [boilerplate_obj])`")
 
 #if defined(V8_USE_LIBM_TRIG_FUNCTIONS)
 DEFINE_BOOL(use_libm_trig_functions, true, "use libm trig functions")
