@@ -173,11 +173,8 @@ RUNTIME_FUNCTION(Runtime_ConstructConsString) {
   DirectHandle<String> right = args.at<String>(1);
   CHECK_UNLESS_FUZZING(left->length() + right->length() >=
                        ConsString::kMinLength);
-
-  const bool is_one_byte =
-      left->IsOneByteRepresentation() && right->IsOneByteRepresentation();
-  const int length = left->length() + right->length();
-  return *isolate->factory()->NewConsString(left, right, length, is_one_byte);
+  CHECK_UNLESS_FUZZING(left->length() + right->length() <= String::kMaxLength);
+  return *isolate->factory()->NewConsString(left, right).ToHandleChecked();
 }
 
 RUNTIME_FUNCTION(Runtime_ConstructSlicedString) {
@@ -203,7 +200,12 @@ RUNTIME_FUNCTION(Runtime_ConstructInternalizedString) {
   Handle<String> string = args.at<String>(0);
   DirectHandle<String> internalized =
       isolate->factory()->InternalizeString(string);
-  CHECK(IsInternalizedString(*string));
+  // The argument was either already an internalized string or it is now a thin
+  // string to an internalized string.
+  CHECK(IsInternalizedString(*string) ||
+        (IsThinString(*string) &&
+         IsInternalizedString(Cast<ThinString>(*string)->actual())));
+  CHECK(IsInternalizedString(*internalized));
   return *internalized;
 }
 
