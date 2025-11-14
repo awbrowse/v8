@@ -638,14 +638,32 @@ void MaglevPhiRepresentationSelector::ConvertTaggedPhiTo(
                     bypassed_input, phi, input_index);
             break;
           }
+          case Opcode::kChangeInt32ToHoleyFloat64: {
+            new_input =
+                GetReplacementForPhiInputConversion<ChangeInt32ToHoleyFloat64>(
+                    bypassed_input, phi, input_index);
+            break;
+          }
           case Opcode::kChangeShiftedInt53ToFloat64: {
             new_input = GetReplacementForPhiInputConversion<
                 ChangeShiftedInt53ToFloat64>(bypassed_input, phi, input_index);
             break;
           }
+          case Opcode::kChangeShiftedInt53ToHoleyFloat64: {
+            new_input = GetReplacementForPhiInputConversion<
+                ChangeShiftedInt53ToHoleyFloat64>(bypassed_input, phi,
+                                                  input_index);
+            break;
+          }
           case Opcode::kChangeUint32ToFloat64: {
             new_input =
                 GetReplacementForPhiInputConversion<ChangeUint32ToFloat64>(
+                    bypassed_input, phi, input_index);
+            break;
+          }
+          case Opcode::kChangeUint32ToHoleyFloat64: {
+            new_input =
+                GetReplacementForPhiInputConversion<ChangeUint32ToHoleyFloat64>(
                     bypassed_input, phi, input_index);
             break;
           }
@@ -797,6 +815,13 @@ void MaglevPhiRepresentationSelector::ConvertTaggedPhiTo(
                 block, {input});
 
           } else {
+            if (hoist_untagging[input_index] == HoistType::kPrologue) {
+              // TODO(victorgomes): Track interprter register initial value to
+              // see if we need to add a hole check.
+              DCHECK(input->Is<InitialValue>());
+              AddNewNodeNoInputConversionAtBlockEnd<DeoptIfHole>(block,
+                                                                 {input});
+            }
             untagged =
                 AddNewNodeNoInputConversionAtBlockEnd<CheckedNumberToFloat64>(
                     block, {input});
@@ -814,6 +839,13 @@ void MaglevPhiRepresentationSelector::ConvertTaggedPhiTo(
                     block, {input});
 
           } else {
+            if (hoist_untagging[input_index] == HoistType::kPrologue) {
+              // TODO(victorgomes): Track interprter register initial value to
+              // see if we need to add a hole check.
+              DCHECK(input->Is<InitialValue>());
+              AddNewNodeNoInputConversionAtBlockEnd<DeoptIfHole>(block,
+                                                                 {input});
+            }
             untagged = AddNewNodeNoInputConversionAtBlockEnd<
                 CheckedNumberToShiftedInt53>(block, {input});
           }
@@ -828,6 +860,13 @@ void MaglevPhiRepresentationSelector::ConvertTaggedPhiTo(
                     block, {input});
           } else {
             DCHECK(!phi->uses_require_31_bit_value());
+            if (hoist_untagging[input_index] == HoistType::kPrologue) {
+              // TODO(victorgomes): Track interprter register initial value to
+              // see if we need to add a hole check.
+              DCHECK(input->Is<InitialValue>());
+              AddNewNodeNoInputConversionAtBlockEnd<DeoptIfHole>(block,
+                                                                 {input});
+            }
             untagged =
                 AddNewNodeNoInputConversionAtBlockEnd<CheckedNumberToFloat64>(
                     block, {input});
